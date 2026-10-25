@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A simple library management system for managing books, members and loans.">
+  <title>Library Management System</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-title">City Library</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+      <nav class="nav" aria-label="Main">
+        <a href="#dashboard" data-view="dashboard">Dashboard</a>
+        <a href="#books" data-view="books">Books</a>
+        <a href="#members" data-view="members">Members</a>
+        <a href="#loans" data-view="loans">Loans</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button type="button" class="link-button" data-action="reset-data">Reset sample data</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Dashboard -->
+      <section class="view" id="view-dashboard">
+        <header class="page-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="page-sub" id="today-label"></p>
+          </div>
+          <button type="button" class="btn btn-primary" data-action="issue-loan">Issue book</button>
+        </header>
+
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-label">Titles</span>
+            <span class="stat-value" id="stat-titles">0</span>
+            <span class="stat-note" id="stat-titles-note"></span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Available copies</span>
+            <span class="stat-value" id="stat-available">0</span>
+            <span class="stat-note" id="stat-available-note"></span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Books on loan</span>
+            <span class="stat-value" id="stat-loans">0</span>
+            <span class="stat-note" id="stat-loans-note"></span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Overdue</span>
+            <span class="stat-value" id="stat-overdue">0</span>
+            <span class="stat-note" id="stat-overdue-note"></span>
+          </div>
+        </div>
+
+        <div class="panels">
+          <section class="panel">
+            <header class="panel-header">
+              <h2>Overdue loans</h2>
+              <a href="#loans" class="panel-link" data-loan-filter="overdue">View all</a>
+            </header>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr><th>Book</th><th>Member</th><th>Due</th><th class="num">Late</th></tr>
+                </thead>
+                <tbody id="overdue-body"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <header class="panel-header">
+              <h2>Recent activity</h2>
+            </header>
+            <ul class="activity" id="activity-list"></ul>
+          </section>
+        </div>
+      </section>
+
+      <!-- Books -->
+      <section class="view" id="view-books" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Books</h1>
+            <p class="page-sub" id="books-count"></p>
+          </div>
+          <button type="button" class="btn btn-primary" data-action="add-book">Add book</button>
+        </header>
+
+        <div class="toolbar">
+          <input type="search" class="input search" id="book-search" placeholder="Search by title, author or ISBN" aria-label="Search books">
+          <select class="input" id="book-genre" aria-label="Filter by genre">
+            <option value="">All genres</option>
+          </select>
+          <select class="input" id="book-availability" aria-label="Filter by availability">
+            <option value="">Any availability</option>
+            <option value="available">Available</option>
+            <option value="unavailable">All copies on loan</option>
+          </select>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th>Title</th><th>ISBN</th><th>Genre</th><th class="num">Year</th><th>Availability</th><th class="actions-col"><span class="sr-only">Actions</span></th></tr>
+              </thead>
+              <tbody id="books-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Members -->
+      <section class="view" id="view-members" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Members</h1>
+            <p class="page-sub" id="members-count"></p>
+          </div>
+          <button type="button" class="btn btn-primary" data-action="add-member">Add member</button>
+        </header>
+
+        <div class="toolbar">
+          <input type="search" class="input search" id="member-search" placeholder="Search by name, email or member ID" aria-label="Search members">
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th>Member</th><th>Contact</th><th>Joined</th><th class="num">Books out</th><th class="actions-col"><span class="sr-only">Actions</span></th></tr>
+              </thead>
+              <tbody id="members-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Loans -->
+      <section class="view" id="view-loans" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Loans</h1>
+            <p class="page-sub">Loan period is 14 days. Late returns are charged &#8377;5 per day.</p>
+          </div>
+          <button type="button" class="btn btn-primary" data-action="issue-loan">Issue book</button>
+        </header>
+
+        <div class="toolbar">
+          <div class="segmented" role="group" aria-label="Filter loans" id="loan-filters">
+            <button type="button" data-filter="active">On loan</button>
+            <button type="button" data-filter="overdue">Overdue</button>
+            <button type="button" data-filter="returned">Returned</button>
+            <button type="button" data-filter="all">All</button>
+          </div>
+          <input type="search" class="input search" id="loan-search" placeholder="Search by book or member" aria-label="Search loans">
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th>Loan</th><th>Book</th><th>Member</th><th>Issued</th><th>Due</th><th>Status</th><th class="num">Fine</th><th class="actions-col"><span class="sr-only">Actions</span></th></tr>
+              </thead>
+              <tbody id="loans-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Book form -->
+  <dialog class="dialog" id="book-dialog" aria-labelledby="book-dialog-title">
+    <form id="book-form" novalidate>
+      <header class="dialog-header"><h2 id="book-dialog-title">Add book</h2></header>
+      <div class="dialog-body">
+        <label class="field">
+          <span>Title</span>
+          <input class="input" name="title" required>
+        </label>
+        <label class="field">
+          <span>Author</span>
+          <input class="input" name="author" required>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>ISBN</span>
+            <input class="input" name="isbn" inputmode="numeric" placeholder="13 digits" required>
+          </label>
+          <label class="field">
+            <span>Genre</span>
+            <input class="input" name="genre" list="genre-options" required>
+            <datalist id="genre-options"></datalist>
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field">
+            <span>Year published</span>
+            <input class="input" name="year" type="number" min="1000" max="2100" required>
+          </label>
+          <label class="field">
+            <span>Copies</span>
+            <input class="input" name="copies" type="number" min="1" max="999" value="1" required>
+          </label>
+        </div>
+        <p class="form-error" role="alert"></p>
+      </div>
+      <footer class="dialog-footer">
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Member form -->
+  <dialog class="dialog" id="member-dialog" aria-labelledby="member-dialog-title">
+    <form id="member-form" novalidate>
+      <header class="dialog-header"><h2 id="member-dialog-title">Add member</h2></header>
+      <div class="dialog-body">
+        <label class="field">
+          <span>Full name</span>
+          <input class="input" name="name" required>
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input class="input" name="email" type="email" required>
+        </label>
+        <label class="field">
+          <span>Phone</span>
+          <input class="input" name="phone" type="tel" required>
+        </label>
+        <p class="form-error" role="alert"></p>
+      </div>
+      <footer class="dialog-footer">
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Issue loan form -->
+  <dialog class="dialog" id="loan-dialog" aria-labelledby="loan-dialog-title">
+    <form id="loan-form" novalidate>
+      <header class="dialog-header"><h2 id="loan-dialog-title">Issue book</h2></header>
+      <div class="dialog-body">
+        <label class="field">
+          <span>Member</span>
+          <select class="input" name="memberId" required></select>
+        </label>
+        <label class="field">
+          <span>Book</span>
+          <select class="input" name="bookId" required></select>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>Issue date</span>
+            <input class="input" name="issued" type="date" required>
+          </label>
+          <label class="field">
+            <span>Due date</span>
+            <input class="input" name="due" type="date" required>
+          </label>
+        </div>
+        <p class="form-error" role="alert"></p>
+      </div>
+      <footer class="dialog-footer">
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Issue</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Confirmation -->
+  <dialog class="dialog dialog-sm" id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <header class="dialog-header"><h2 id="confirm-title">Are you sure?</h2></header>
+      <div class="dialog-body">
+        <p id="confirm-message"></p>
+      </div>
+      <footer class="dialog-footer">
+        <button type="submit" class="btn" value="cancel">Cancel</button>
+        <button type="submit" class="btn btn-danger" value="confirm" id="confirm-ok">Confirm</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
